@@ -4,24 +4,22 @@ import (
 	"encoding/json"
 	"os"
 	"surfe/internal/models"
-	"sync"
 )
 
 type userRepository struct {
 	users []models.User
-	mu    sync.RWMutex // No exactly needed for this usage, as there is no data writes.
 }
 
-func NewUserRepository() (UserRepository, error) {
+func NewUserRepository(filePath string) (UserRepository, error) {
 	repo := &userRepository{}
-	if err := repo.loadData(); err != nil {
+	if err := repo.loadData(filePath); err != nil {
 		return nil, err
 	}
 	return repo, nil
 }
 
-func (r *userRepository) loadData() error {
-	file, err := os.Open("../../users.json")
+func (r *userRepository) loadData(filePath string) error {
+	file, err := os.Open(filePath)
 	if err != nil {
 		return err
 	}
@@ -31,9 +29,6 @@ func (r *userRepository) loadData() error {
 }
 
 func (r *userRepository) GetByID(id int) (*models.User, error) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-
 	for _, user := range r.users {
 		if user.ID == id {
 			return &user, nil
@@ -43,9 +38,6 @@ func (r *userRepository) GetByID(id int) (*models.User, error) {
 }
 
 func (r *userRepository) GetAll() ([]models.User, error) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-
 	users := make([]models.User, len(r.users))
 	copy(users, r.users)
 	return users, nil

@@ -8,11 +8,19 @@ import (
 	"surfe/internal/repository"
 	"surfe/internal/services"
 
+	_ "surfe/docs" // This will be generated
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
+// @title Surfe API
+// @version 1.0
+// @description API for user actions and referrals
+// @host localhost:8000
+// @BasePath /api/v1
 func main() {
 	if err := run(); err != nil {
 		log.Error(err)
@@ -28,12 +36,15 @@ func run() error {
 
 	e.HideBanner = true
 
-	userRepo, err := repository.NewUserRepository()
+	// Swagger documentation endpoint
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
+
+	userRepo, err := repository.NewUserRepository("users.json")
 	if err != nil {
 		return fmt.Errorf("failed to create user repository: %v", err)
 	}
 
-	actionsRepo, err := repository.NewActionRepository()
+	actionsRepo, err := repository.NewActionRepository("actions.json")
 	if err != nil {
 		return fmt.Errorf("failed to create action repository: %v", err)
 	}

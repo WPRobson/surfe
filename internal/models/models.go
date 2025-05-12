@@ -22,5 +22,8 @@ type ActionCount struct {
 
 type ActionProbability map[string]float64
 
-// type ReferralIndex map[int]int
+type ReferralIndex struct {
+	Index map[int]int `json:"index"`
+}
 
+// type ReferralIndex map[int]int

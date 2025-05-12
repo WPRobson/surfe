@@ -1,0 +1,129 @@
+basePath: /api/v1
+definitions:
+  models.ActionCount:
+    properties:
+      count:
+        type: integer
+    type: object
+  models.ActionProbability:
+    additionalProperties:
+      type: number
+    type: object
+  models.User:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: API for user actions and referrals
+  title: Surfe API
+  version: "1.0"
+paths:
+  /actions/{type}/next:
+    get:
+      consumes:
+      - application/json
+      description: Get probabilities of next actions based on current action type
+      parameters:
+      - description: Action Type
+        in: path
+        name: type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ActionProbability'
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Get next action probabilities
+      tags:
+      - actions
+  /actions/referral:
+    get:
+      consumes:
+      - application/json
+      description: Get the referral index showing how many users each user has referred
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Get referral index
+      tags:
+      - actions
+  /users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get user details by their ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema: {}
+        "404":
+          description: Not Found
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Get user by ID
+      tags:
+      - users
+  /users/{id}/actions/count:
+    get:
+      consumes:
+      - application/json
+      description: Get the total number of actions performed by a user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ActionCount'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: Get user action count
+      tags:
+      - users
+swagger: "2.0"

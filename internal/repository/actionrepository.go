@@ -5,24 +5,22 @@ import (
 	"os"
 	"sort"
 	"surfe/internal/models"
-	"sync"
 )
 
 type actionRepository struct {
 	actions []models.Action
-	mu      sync.RWMutex // No exactly needed for this usage, as there is no data writes.
 }
 
-func NewActionRepository() (ActionRepository, error) {
+func NewActionRepository(filePath string) (ActionRepository, error) {
 	repo := &actionRepository{}
-	if err := repo.loadData(); err != nil {
+	if err := repo.loadData(filePath); err != nil {
 		return nil, err
 	}
 	return repo, nil
 }
 
-func (r *actionRepository) loadData() error {
-	file, err := os.Open("../../actions.json") // Adjust the path if the file is in a different location
+func (r *actionRepository) loadData(filePath string) error {
+	file, err := os.Open(filePath) // Adjust the path if the file is in a different location
 	if err != nil {
 		return err
 	}
@@ -32,10 +30,7 @@ func (r *actionRepository) loadData() error {
 }
 
 func (r *actionRepository) GetByUserID(userID int) ([]models.Action, error) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-
-	var userActions []models.Action
+	userActions := []models.Action{}
 	for _, action := range r.actions {
 		if action.UserID == userID {
 			userActions = append(userActions, action)
@@ -45,18 +40,12 @@ func (r *actionRepository) GetByUserID(userID int) ([]models.Action, error) {
 }
 
 func (r *actionRepository) GetAll() ([]models.Action, error) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-
 	actions := make([]models.Action, len(r.actions))
 	copy(actions, r.actions)
 	return actions, nil
 }
 
 func (r *actionRepository) GetNextActions(actionType string) (map[string]int, int, error) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-
 	userActions := make(map[int][]models.Action)
 	for _, a := range r.actions {
 		userActions[a.UserID] = append(userActions[a.UserID], a)
@@ -83,9 +72,6 @@ func (r *actionRepository) GetNextActions(actionType string) (map[string]int, in
 }
 
 func (r *actionRepository) GetReferrals() (map[int][]int, error) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-
 	referrals := make(map[int][]int)
 	for _, action := range r.actions {
 		if action.Type == "REFER_USER" {
