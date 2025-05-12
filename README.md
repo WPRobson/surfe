@@ -104,6 +104,9 @@ GET /api/v1/actions/referral
 ```
 Returns the referral index showing how many users each user has referred.
 
+### Referal index approach
+To get the referral index of all users, I implemented it as a Depth First Search. As users can only be referred once, it makes it a DAG (Directed Acyclic Graph), and iterating through a larger dataset, DFS was a logical choice as it would mean that each node and edge would be visited only once. DSF is typically efficient on both memory and time, with a big O notation of O(V + E), where V is the number of vertices and E is the number of edges.
+
 ## Project Structure
 
 ```
